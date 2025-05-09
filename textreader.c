@@ -1,4 +1,4 @@
-/* textreader
+/* textreader.c
 Code by Chris Stoddard */
 
 #include <ncurses.h>
@@ -10,6 +10,9 @@ Code by Chris Stoddard */
 
 #define MAX_LINES 10000
 #define MAX_LINE_LEN 1024
+#define SCREEN_ROWS 38    // Text lines
+#define SCREEN_COLS 40    // Characters per row
+#define STATUS_ROW 38     // Last row is status bar (row 0-indexed)
 
 char *lines[MAX_LINES];
 int total_lines = 0;
@@ -17,14 +20,17 @@ char state_file_path[PATH_MAX];
 
 void init_state_file_path(const char *filepath) {
     char path_copy[PATH_MAX];
-    realpath(filepath, path_copy);
+    if (!realpath(filepath, path_copy)) {
+        perror("realpath");
+        exit(1);
+    }
     snprintf(state_file_path, sizeof(state_file_path), "%s/.textreader.state", dirname(path_copy));
 }
 
 int load_last_position(const char *filepath) {
     init_state_file_path(filepath);
     char abspath[PATH_MAX];
-    realpath(filepath, abspath);
+    if (!realpath(filepath, abspath)) return 0;
 
     FILE *fp = fopen(state_file_path, "r");
     if (!fp) return 0;
@@ -45,7 +51,7 @@ int load_last_position(const char *filepath) {
 void save_position(const char *filepath, int pos) {
     init_state_file_path(filepath);
     char abspath[PATH_MAX];
-    realpath(filepath, abspath);
+    if (!realpath(filepath, abspath)) return;
 
     FILE *fp = fopen(state_file_path, "r");
     FILE *tmp = tmpfile();
@@ -68,7 +74,9 @@ void save_position(const char *filepath, int pos) {
         fclose(fp);
     }
 
-    if (!updated) fprintf(tmp, "%s %d\n", abspath, pos);
+    if (!updated) {
+        fprintf(tmp, "%s %d\n", abspath, pos);
+    }
 
     FILE *out = fopen(state_file_path, "w");
     if (!out) return;
@@ -96,11 +104,24 @@ void free_lines() {
     }
 }
 
-void draw_screen(int start, int height) {
+void draw_screen(int start_line) {
     clear();
-    for (int i = 0; i < height && (start + i) < total_lines; i++) {
-        mvprintw(i, 0, "%s", lines[start + i]);
+
+    int row = 0;
+    for (int i = start_line; i < total_lines && row < SCREEN_ROWS; i++) {
+        int len = strlen(lines[i]);
+        for (int j = 0; j < len && row < SCREEN_ROWS; j += SCREEN_COLS) {
+            char segment[SCREEN_COLS + 1];
+            strncpy(segment, lines[i] + j, SCREEN_COLS);
+            segment[SCREEN_COLS] = '\0';
+            mvprintw(row++, 0, "%s", segment);
+        }
     }
+
+    // Status bar on last row
+    mvprintw(STATUS_ROW, 0, "[q] Quit  Line %d / %d", start_line + 1, total_lines);
+    clrtoeol();
+
     refresh();
 }
 
@@ -112,22 +133,38 @@ int main(int argc, char *argv[]) {
 
     load_file(argv[1]);
 
-    initscr(); cbreak(); noecho(); keypad(stdscr, TRUE);
-    int ch, start = load_last_position(argv[1]), h = LINES;
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
 
-    draw_screen(start, h);
+    int ch;
+    int start_line = load_last_position(argv[1]);
+
+    draw_screen(start_line);
 
     while ((ch = getch()) != 'q') {
         switch (ch) {
-            case KEY_UP: if (start > 0) start--; break;
-            case KEY_DOWN: if (start + h < total_lines) start++; break;
-            case ' ': start += h; if (start > total_lines - h) start = total_lines - h; break;
+            case KEY_DOWN:
+                if (start_line + 1 < total_lines)
+                    start_line++;
+                break;
+            case KEY_UP:
+                if (start_line > 0)
+                    start_line--;
+                break;
+            case ' ':
+                start_line += SCREEN_ROWS;
+                if (start_line > total_lines - 1)
+                    start_line = total_lines - 1;
+                break;
         }
-        draw_screen(start, h);
+
+        draw_screen(start_line);
     }
 
     endwin();
-    save_position(argv[1], start);
+    save_position(argv[1], start_line);
     free_lines();
     return 0;
 }

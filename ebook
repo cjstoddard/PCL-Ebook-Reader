@@ -1,0 +1,30 @@
+# ebook shell script
+# Code by Chris Stoddard
+
+#!/bin/bash
+
+# Check for epub2ascii and textreader
+command -v epub2ascii >/dev/null 2>&1 || { echo >&2 "epub2ascii is not installed or not in PATH."; exit 1; }
+command -v textreader >/dev/null 2>&1 || { echo >&2 "textreader is not installed or not in PATH."; exit 1; }
+
+# Check argument
+if [ $# -ne 1 ]; then
+    echo "Usage: ebook book.epub"
+    exit 1
+fi
+
+EPUB="$1"
+BASENAME="$(basename "$EPUB" .epub)"
+ASCII_FILE="${BASENAME}_ascii.txt"
+
+# Check if ASCII version exists
+if [ -f "$ASCII_FILE" ]; then
+    echo "Found $ASCII_FILE — skipping conversion."
+else
+    echo "Converting $EPUB to ASCII..."
+    epub2ascii "$EPUB" || { echo "Conversion failed."; exit 1; }
+fi
+
+# Launch textreader
+textreader "$ASCII_FILE"
+
