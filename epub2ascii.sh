@@ -1,0 +1,44 @@
+# epub2ascii shell script
+# Code by Chris Stoddard
+
+#!/bin/bash
+
+# Check for required tools
+command -v html2text >/dev/null 2>&1 || { echo >&2 "html2text is not installed. Try: sudo apt install html2text"; exit 1; }
+command -v unzip >/dev/null 2>&1 || { echo >&2 "unzip is not installed. Try: sudo apt install unzip"; exit 1; }
+
+# Usage check
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 book.epub"
+    exit 1
+fi
+
+EPUB="$1"
+BASENAME="$(basename "$EPUB" .epub)"
+TEMP_DIR="$(mktemp -d)"
+OUTPUT_FILE="${BASENAME}.txt"
+ASCII_FILE="${BASENAME}_ascii.txt"
+
+# Extract EPUB
+unzip -q "$EPUB" -d "$TEMP_DIR" || { echo "Failed to unzip $EPUB"; exit 1; }
+
+# Process HTML/XHTML files with paragraph approximation
+> "$OUTPUT_FILE"
+find "$TEMP_DIR" -type f \( -iname '*.xhtml' -o -iname '*.html' \) | sort | while read -r FILE; do
+    html2text "$FILE" 2>/dev/null | \
+    grep -vE '^=== /tmp/tmp|^<\?xml' | \
+    sed -E 's/([\.!?])$/\1\n/' >> "$OUTPUT_FILE"
+    echo -e "\n---\n" >> "$OUTPUT_FILE"
+done
+
+echo "UTF-8 text with paragraph spacing saved to $OUTPUT_FILE"
+
+# ASCII cleanup: iconv preferred, fallback to tr
+if command -v iconv >/dev/null 2>&1; then
+    iconv -f utf-8 -t ascii//TRANSLIT "$OUTPUT_FILE" -o "$ASCII_FILE"
+    echo "ASCII-safe version saved to $ASCII_FILE"
+else
+    tr -cd '\11\12\15\40-\176' < "$OUTPUT_FILE" > "$ASCII_FILE"
+    echo "ASCII-safe version (basic strip) saved to $ASCII_FILE"
+fi
+
