@@ -4,8 +4,8 @@
 #!/bin/bash
 
 # Check for required tools
-command -v html2text >/dev/null 2>&1 || { echo >&2 "html2text is not installed. Try: sudo apt install html2text"; exit 1; }
-command -v unzip >/dev/null 2>&1 || { echo >&2 "unzip is not installed. Try: sudo apt install unzip"; exit 1; }
+command -v html2text >/dev/null 2>&1 || { echo >&2 "html2text is not installed or not in your path"; exit 1; }
+command -v unzip >/dev/null 2>&1 || { echo >&2 "unzip is not installed, or not in your path"; exit 1; }
 
 # Usage check
 if [ $# -ne 1 ]; then
