@@ -24,13 +24,7 @@ When you run the program, the ebook shell script looks to see if the epub book h
 
 Acknowledgments:
 
-html2text version 3.1
-
-by Aaron Swartz (me@aaronsw.com)
-
-(C) 2004-2008 Aaron Swartz. GNU GPL 3."
-
-Martin 'Joey' Schulze, Ricardo Reyes, Kevin Jay North
+html2text version 3.1, (C) 2004-2008 Aaron Swartz. GNU GPL 3. by Aaron Swartz (me@aaronsw.com), with contributers; Martin 'Joey' Schulze, Ricardo Reyes, Kevin Jay North
 
 Disclaimer: This software is provided "AS IS", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a paticular purpose and nonifringment. In no event shall the author or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
 
