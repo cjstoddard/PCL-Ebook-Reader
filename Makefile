@@ -7,7 +7,7 @@ TARGET = textreader
 SRC = textreader.c
 
 BIN_SCRIPTS = ebook epub2ascii html2text
-INSTALL_DIR = /usr/bin
+INSTALL_DIR = /usr/local/bin
 
 .PHONY: all clean install
 
