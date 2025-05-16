@@ -1,5 +1,5 @@
-# PCL-Ebook-Reader
-PicoCalc Lyra Ebook Reader
+# PCL Ebook Reader and RSS Feed Reader
+PicoCalc Lyra Ebook Reader and RSS Feed Reader
 
 This is a small text mode epub reader. I was surprised to find there were very few of this type program out there and the ones that were are all old, outdated and unmaintained. I am targeting the Picocalc with the Lyra mod for the moment, this will run on a desktop Linux machine, but keep in mind, it specifically targets a small 320x320 screen, so there may be some weirdness in rendering.
 
@@ -21,6 +21,14 @@ You can navigate the book with the up/down curser keys and pressing the space ba
 
 How this works:
 When you run the program, the ebook shell script looks to see if the epub book has been converted to text yet, if it has not been done, it will proceed to convert the epub file to text. The first time you open a specific epub file, the conversion will take a minute or two, but after that, when you open it, will go directly to the text file instead of converting it. The conversion process makes two files, a .txt file and a _ascii.txt file. this program uses the _ascii.txt, you can delete the other one if you want to. I left both files in case you want to use a better program to view the book. the .txt file retains the UTF-8 encoding, _ascii.txt file has the UTF-8 encoding stripped out, because textreader does not support it.
+
+Update 5-16-2025
+
+I have added an RSS Feed Reader to this bundle. I thought about making it a seperate thing by itself, but decided to just bundle it up with the ebook reader. This is a simple text only RSS reader, it displays the 10 most recent stories in a feed and when you select one, it will invoke w3m so you can read the story. To run it simply invoke it like this;
+
+> rssreader https://hnrss.org/frontpage
+
+It will save visited sites and when invoked without a URL, it will give you an option of which saved site you want to view. As with ebook, this can be used on a regular Linux desktop machine, but it is designed with a 320x320 screen in mind, so things may render weirdly.
 
 Acknowledgments:
 
