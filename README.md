@@ -28,7 +28,7 @@ I have added an RSS Feed Reader to this bundle. I thought about making it a sepe
 
 > rssreader https://hnrss.org/frontpage
 
-It will save visited sites and when invoked without a URL, it will give you an option of which saved site you want to view. As with ebook, this can be used on a regular Linux desktop machine, but it is designed with a 320x320 screen in mind, so things may render weirdly.
+It will save visited sites and when invoked without a URL, it will give you an option of which saved site you want to view. As with ebook, this can be used on a regular Linux desktop machine, but it is designed with a 320x320 screen in mind, so things may render weirdly. If you do use it on a Linux Desktop system, make sure you have w3m installed as well.
 
 Acknowledgments:
 
